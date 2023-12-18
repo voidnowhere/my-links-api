@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequestMapping("links")
+@RequestMapping("api/links")
 @RequiredArgsConstructor
 public class LinkController {
     private final LinkService service;
@@ -20,13 +20,11 @@ public class LinkController {
         return service.getAll();
     }
 
-    @PostMapping
-    public ResponseEntity<String> store(@RequestBody Link link) {
-        return service.store(link);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> destroy(@PathVariable Long id) {
-        return service.destroy(id);
+    @PutMapping("/{id}/set-favorite")
+    public ResponseEntity<String> setFavorite(
+            @PathVariable Long id,
+            @RequestBody boolean favorite
+    ) {
+        return service.setFavorite(id, favorite);
     }
 }

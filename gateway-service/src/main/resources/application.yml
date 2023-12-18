@@ -9,15 +9,21 @@ spring:
         - id: links-service
           uri: lb://links-service
           predicates:
-            - Path=/links/**
+            - Path=/api/links/**
         - id: categories-service
           uri: lb://categories-service
           predicates:
-            - Path=/categories/**
+            - Path=/api/categories/**
         - id: auth-service
           uri: lb://auth-service
           predicates:
-            - Path=/auth/**
+            - Path=/api/auth/**
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: '*'
+            allowedMethods: '*'
+            allowedHeaders: '*'
 eureka:
   client:
     service-url:
