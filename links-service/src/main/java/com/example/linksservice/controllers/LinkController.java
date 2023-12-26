@@ -4,12 +4,11 @@ import com.example.linksservice.entities.Link;
 import com.example.linksservice.services.LinkService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("api/links")
 @RequiredArgsConstructor
 public class LinkController {
