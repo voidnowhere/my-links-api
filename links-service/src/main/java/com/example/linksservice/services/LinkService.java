@@ -3,6 +3,8 @@ package com.example.linksservice.services;
 import com.example.linksservice.entities.Link;
 import com.example.linksservice.repositories.LinkRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,7 @@ public class LinkService {
         return ResponseEntity.ok(links);
     }
 
+
     public ResponseEntity<String> setFavorite(Long linkId, boolean favorite) {
         Optional<Link> optionalLink = repository.findById(linkId);
 
@@ -38,4 +41,19 @@ public class LinkService {
 
         return ResponseEntity.ok().build();
     }
+
+    public ResponseEntity<String> setLink(Link link) {
+
+        if(repository.existsByUrl(link.getUrl())){
+            return ResponseEntity.badRequest().body("link already exist");
+        }
+        repository.save(link);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    public ResponseEntity<String> deleteLink(Long linkId){
+        repository.deleteById(linkId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 }

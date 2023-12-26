@@ -20,11 +20,22 @@ public class LinkController {
         return service.getAll();
     }
 
+
     @PutMapping("/{id}/set-favorite")
     public ResponseEntity<String> setFavorite(
             @PathVariable Long id,
             @RequestBody boolean favorite
     ) {
         return service.setFavorite(id, favorite);
+    }
+
+    @PostMapping("")
+    public ResponseEntity<String> saveLink(@RequestBody Link link) {
+
+        return service.setLink(link);
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteLink(@PathVariable Long id){
+        return service.deleteLink(id);
     }
 }
