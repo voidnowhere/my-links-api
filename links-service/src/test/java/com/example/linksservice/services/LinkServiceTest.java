@@ -1,5 +1,6 @@
 package com.example.linksservice.services;
 
+import com.example.linksservice.dtos.LinkDTO;
 import com.example.linksservice.entities.Link;
 import com.example.linksservice.repositories.LinkRepository;
 import org.junit.jupiter.api.Test;
@@ -13,9 +14,9 @@ import org.springframework.http.ResponseEntity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,21 +29,33 @@ class LinkServiceTest {
 
     @Test
     void testGetAll() {
-        List<Link> links = List.of(new Link(1L, "www.google.com", true));
+        UUID userId = UUID.randomUUID();
+        List<Link> links = List.of(new Link(1L, userId, "www.google.com", true));
 
-        when(linkRepository.findAll()).thenReturn(links);
+        when(linkRepository.findAllByUserId(userId)).thenReturn(links);
 
-        ResponseEntity<List<Link>> responseEntity = linkService.getAll();
+        ResponseEntity<List<LinkDTO>> responseEntity = linkService.getAllByUserId(userId);
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(links, responseEntity.getBody());
+
+        List<LinkDTO> expectedLinks = links.stream()
+                .map(l -> new LinkDTO(l.getId(), l.getUrl(), l.isFavorite())).toList();
+        List<LinkDTO> actualLinks = responseEntity.getBody();
+
+        assertNotNull(actualLinks);
+        for (int i = 0, s = expectedLinks.size(); i < s; i++) {
+            assertEquals(expectedLinks.get(i).getId(), actualLinks.get(i).getId());
+            assertEquals(expectedLinks.get(i).getUrl(), actualLinks.get(i).getUrl());
+            assertEquals(expectedLinks.get(i).isFavorite(), actualLinks.get(i).isFavorite());
+        }
     }
 
     @Test
     void testGetAllEmpty() {
-        when(linkRepository.findAll()).thenReturn(new ArrayList<>());
+        UUID userId = UUID.randomUUID();
+        when(linkRepository.findAllByUserId(userId)).thenReturn(new ArrayList<>());
 
-        ResponseEntity<List<Link>> responseEntity = linkService.getAll();
+        ResponseEntity<List<LinkDTO>> responseEntity = linkService.getAllByUserId(userId);
 
         assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
         assertNull(responseEntity.getBody());
@@ -50,12 +63,14 @@ class LinkServiceTest {
 
     @Test
     void testSetFavorite() {
-        when(linkRepository.findById(1L)).thenReturn(Optional.of(new Link(1L, "www.google.com", true)));
-        assertEquals(ResponseEntity.ok().build(), linkService.setFavorite(1L, false));
+        UUID userId = UUID.randomUUID();
+        when(linkRepository.findByIdAndUserId(1L, userId))
+                .thenReturn(Optional.of(new Link(1L, userId, "www.google.com", true)));
+        assertEquals(ResponseEntity.ok().build(), linkService.setFavorite(1L, userId, false));
     }
 
     @Test
     void testSetFavoriteOfNotExists() {
-        assertEquals(ResponseEntity.notFound().build(), linkService.setFavorite(1L, false));
+        assertEquals(ResponseEntity.notFound().build(), linkService.setFavorite(1L, UUID.randomUUID(), false));
     }
 }
