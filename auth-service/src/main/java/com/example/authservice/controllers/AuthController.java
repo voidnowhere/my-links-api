@@ -1,6 +1,7 @@
 package com.example.authservice.controllers;
 
 import com.example.authservice.dtos.AuthRequest;
+import com.example.authservice.dtos.AuthResponse;
 import com.example.authservice.services.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ public class AuthController {
     private final AuthService service;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
         return service.login(request);
     }
 
