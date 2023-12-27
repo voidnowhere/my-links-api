@@ -5,19 +5,6 @@ spring:
     name: gateway-service
   cloud:
     gateway:
-      routes:
-        - id: links-service
-          uri: lb://links-service
-          predicates:
-            - Path=/api/links/**
-        - id: categories-service
-          uri: lb://categories-service
-          predicates:
-            - Path=/api/categories/**
-        - id: auth-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/api/auth/**
       globalcors:
         cors-configurations:
           '[/**]':
@@ -28,3 +15,5 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
+jwt:
+  secret: te2hC58cNwiTCR8W7c9kQfiXjwOYAiLf
