@@ -1,6 +1,7 @@
 package com.example.authservice.services;
 
 import com.example.authservice.dtos.AuthRequest;
+import com.example.authservice.dtos.AuthResponse;
 import com.example.authservice.entities.User;
 import com.example.authservice.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class AuthService {
     private final JWTUtil jwtUtil;
     private final UserRepository repository;
 
-    public ResponseEntity<String> login(AuthRequest request) {
+    public ResponseEntity<AuthResponse> login(AuthRequest request) {
         Optional<User> optionalUser = repository.findByEmail(request.getEmail());
 
         if (optionalUser.isEmpty()) {
@@ -29,7 +30,7 @@ public class AuthService {
             return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.ok(jwtUtil.generate(user.getId().toString()));
+        return ResponseEntity.ok(new AuthResponse(jwtUtil.generate(user.getId().toString())));
     }
 
     public ResponseEntity<String> register(AuthRequest request) {
