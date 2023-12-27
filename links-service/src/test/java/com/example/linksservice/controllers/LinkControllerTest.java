@@ -1,5 +1,6 @@
 package com.example.linksservice.controllers;
 
+import com.example.linksservice.dtos.LinkDTO;
 import com.example.linksservice.entities.Link;
 import com.example.linksservice.services.LinkService;
 import org.hamcrest.CoreMatchers;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -31,10 +33,17 @@ class LinkControllerTest {
 
     @Test
     void testGetAll() throws Exception {
-        Link firstLink = new Link(1L, "www.google.com", false);
+        UUID userId = UUID.randomUUID();
+        Link firstLink = new Link(1L, userId, "www.google.com", false);
         List<Link> links = List.of(firstLink);
-        when(linkService.getAll()).thenReturn(ResponseEntity.ok(links));
-        ResultActions resultActions = mockMvc.perform(get("/api/links"));
+        when(linkService.getAllByUserId(userId)).thenReturn(ResponseEntity.ok(
+                links.stream()
+                        .map(l -> new LinkDTO(l.getId(), l.getUrl(), l.isFavorite())).toList()
+        ));
+        ResultActions resultActions = mockMvc.perform(
+                get("/api/links")
+                        .header("User-Id", userId)
+        );
 
         resultActions
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -46,8 +55,12 @@ class LinkControllerTest {
 
     @Test
     void testGetAllEmpty() throws Exception {
-        when(linkService.getAll()).thenReturn(ResponseEntity.noContent().build());
-        ResultActions resultActions = mockMvc.perform(get("/api/links"));
+        UUID userId = UUID.randomUUID();
+        when(linkService.getAllByUserId(userId)).thenReturn(ResponseEntity.noContent().build());
+        ResultActions resultActions = mockMvc.perform(
+                get("/api/links")
+                        .header("User-Id", userId)
+        );
 
         resultActions
                 .andExpect(MockMvcResultMatchers.status().isNoContent())
@@ -56,9 +69,11 @@ class LinkControllerTest {
 
     @Test
     void setFavorite() throws Exception {
-        when(linkService.setFavorite(1L, true)).thenReturn(ResponseEntity.ok().build());
+        UUID userId = UUID.randomUUID();
+        when(linkService.setFavorite(1L, userId, true)).thenReturn(ResponseEntity.ok().build());
         ResultActions resultActions = mockMvc.perform(
                 put("/api/links/1/set-favorite")
+                        .header("User-Id", userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("true")
         );
@@ -68,9 +83,11 @@ class LinkControllerTest {
 
     @Test
     void setFavoriteOfNotExist() throws Exception {
-        when(linkService.setFavorite(1L, true)).thenReturn(ResponseEntity.notFound().build());
+        UUID userId = UUID.randomUUID();
+        when(linkService.setFavorite(1L, userId, true)).thenReturn(ResponseEntity.notFound().build());
         ResultActions resultActions = mockMvc.perform(
                 put("/api/links/1/set-favorite")
+                        .header("User-Id", userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("true")
         );
