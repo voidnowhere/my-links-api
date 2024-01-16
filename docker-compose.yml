@@ -1,0 +1,71 @@
+version: '3'
+services:
+  auth-service:
+    container_name: auth-service
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/auth-service
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - EUREKA_DEFAULT_ZONE=http://eureka-service:8761/eureka
+    depends_on:
+      - db
+      - eureka-service
+      - gateway-service
+
+  links-service:
+    container_name: links-service
+    build:
+      context: ./links-service
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/links-service
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - EUREKA_DEFAULT_ZONE=http://eureka-service:8761/eureka
+    depends_on:
+      - db
+      - eureka-service
+      - gateway-service
+  
+  db:
+    container_name: db
+    image: mysql:8
+    volumes:
+      - ./docker/db:/var/lib/mysql
+      - ./docker/initdb:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin:latest
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    ports:
+      - '8090:80'
+    depends_on:
+      - db
+
+  gateway-service:
+    container_name: gateway-service
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    ports:
+      - '9090:8080'
+    environment:
+      - EUREKA_DEFAULT_ZONE=http://eureka-service:8761/eureka
+    depends_on:
+      - eureka-service
+  
+  eureka-service:
+    container_name: eureka-service
+    build:
+      context: ./eureka-service
+      dockerfile: Dockerfile
+    ports:
+      - '8761:8761'
