@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 
 @Service
 public class RouteValidator {
-    public static final List<String> openEndpoints = List.of(
+    public final List<String> openEndpoints = List.of(
             "api/auth/login",
             "api/auth/register"
     );
