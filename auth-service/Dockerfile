@@ -1,4 +1,4 @@
-FROM maven:3.6.3-openjdk-17
+FROM maven:3.8-openjdk-17-slim as build
 
 WORKDIR /app
 
@@ -6,4 +6,10 @@ COPY . /app
 
 RUN mvn clean package
 
-ENTRYPOINT ["java", "-jar", "target/auth-service.jar"]
+FROM openjdk:17-slim
+
+WORKDIR /app
+
+COPY --from=build /app/target/auth-service.jar /app
+
+ENTRYPOINT ["java", "-jar", "auth-service.jar"]
